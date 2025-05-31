@@ -19,3 +19,5 @@ jax-cuda12-pjrt==0.4.35
 jax-cuda12-plugin==0.4.35
 jaxlib==0.4.34
 wcosmo==0.3.1
+#code format
+pre-commit==4.2.0
