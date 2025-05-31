@@ -33,15 +33,6 @@ Results will be saved in the `outputs/` directory.
 
 ---
 
-## Project Structure
-
-- `kmade/core` - Core library code
-- `kmade/cli/` - Quick start
-- `outputs/` - Output results
-- `doc/` - Documentation
-- `test/` - Results of three simple tests
-
----
 
 ## Reference
 
