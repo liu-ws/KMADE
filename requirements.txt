@@ -1,0 +1,21 @@
+# python==3.10.15
+pykan==0.2.7
+torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu121
+torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+ipykernel==6.29.5
+matplotlib==3.9.2
+corner==2.2.2
+scikit-learn==1.5.1
+pyyaml==6.0.2
+tqdm==4.67.0
+pandas==2.2.3
+tables==3.10.1
+h5py==3.12.1
+#population inference
+gwpopulation==1.1.2
+jax==0.4.35
+jax-cuda12-pjrt==0.4.35
+jax-cuda12-plugin==0.4.35
+jaxlib==0.4.34
+wcosmo==0.3.1
