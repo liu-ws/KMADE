@@ -11,10 +11,15 @@ def create_degrees(data_l, n_hiddens, input_order, mode, seed):
     Create a degree for each node. Nodes in the hidden layer can only connect to nodes whose degree is less than or equal to their own degree in the lower layer
     The input para must be fully connected to the hidden-layers. Therefore, you only need to create degrees on the input data
 
-    data_l:      data dimension
-    n_hiddens:   list of number of nodes in hidden-layers
-    input_order: arrangement of input-layer's degrees random/sequential/custom list
-    mode:        arrangement of hidden-layers' degrees random/sequential
+    Args:
+        data_l : int
+            data dimension
+        n_hiddens : list
+            list of number of nodes in hidden-layers
+        input_order : str or list
+            arrangement of input-layer's degrees random/sequential/custom list
+        mode : str
+            arrangement of hidden-layers' degrees random/sequential
     """
 
     degrees = []
@@ -66,11 +71,13 @@ def create_degrees(data_l, n_hiddens, input_order, mode, seed):
 
 def create_masks(degrees, n_comps, device):
     """
-    degrees: list
-    n_comps: The number of Gaussian distributions used to model the probability distributions
-
-    In the single Gaussian case, the output dimension is data_l*2. The first half is m and the second half is logp
-    In the mixed Gaussian case, the output dimension is data_l*n_comps*3. The first 1/3 is m, the middle 1/3 is logp, and the last 1/3 is loga
+    Args:
+    ----
+        degrees : list
+        n_comps : int
+            The number of Gaussian distributions used to model the probability distributions
+            In the single Gaussian case, the output dimension is data_l*2. The first half is m and the second half is logp
+            In the mixed Gaussian case, the output dimension is data_l*n_comps*3. The first 1/3 is m, the middle 1/3 is logp, and the last 1/3 is loga
 
     """
 
@@ -147,21 +154,34 @@ class SGKMADE(MultKAN):
 
     def __init__(
         self,
-        data_l,
-        hidden_layers=[],
-        input_order="sequential",
-        mode="sequential",
-        ifperturb=False,
-        bias_mean=0,
-        bias_std=1,
+        data_l: int,
+        hidden_layers: list = [],
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
+        ifperturb: bool = False,
+        bias_mean: float = 0,
+        bias_std: float = 1,
         **kwargs,
     ):
         """
-        data_l:        data dimension
-        hidden_layers: list of number of nodes in hidden-layers
-        input_order:   arrangement of input-layer's degrees
-        mode:          arrangement of hidden-layer's degrees
+        Args:
+            data_l : int
+                Data dimension.
+            hidden_layers : list, optional
+                Number of nodes in each hidden layer. Default: [] .
+            input_order : str or list, optional
+                Input layer degree order, "sequential", "random" or custom list. Default: "sequential".
+            mode : str, optional
+                Hidden layer degree arrangement, "sequential" or "random". Default: "sequential".
+            ifperturb : bool, optional
+                Whether to perturb the last layer bias. Default: False.
+            bias_mean : float, optional
+                Mean for bias perturbation. Default: 0.
+            bias_std : float, optional
+                Std for bias perturbation. Default: 1.
+            **kwargs : Other keyword arguments for KAN.
         """
+
         self.n_comps = 1
         self.para_l = 0
         self.para_hidden_layers = []
@@ -315,22 +335,35 @@ class MGKMADE(MultKAN):
 
     def __init__(
         self,
-        data_l,
-        n_comps=2,
-        hidden_layers=[],
-        input_order="sequential",
-        mode="sequential",
-        ifperturb=False,
-        bias_mean=0,
-        bias_std=1,
+        data_l: int,
+        n_comps: int = 2,
+        hidden_layers: list = [],
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
+        ifperturb: bool = False,
+        bias_mean: float = 0,
+        bias_std: float = 1,
         **kwargs,
     ):
         """
-        data_l:        data dimension
-        n_comps:       number of Gaussian distributions used to model the probability distributions
-        hidden_layers: list of number of nodes in hidden-layers
-        input_order:   arrangement of input-layer's degrees
-        mode:          arrangement of hidden-layer's degrees
+        Args:
+            data_l : int
+                Data dimension.
+            n_comps : int, optional
+                Number of Gaussian distributions. Default: 2.
+            hidden_layers : list, optional
+                Number of nodes in each hidden layer. Default: [] .
+            input_order : str or list, optional
+                Input layer degree order, "sequential", "random" or custom list. Default: "sequential".
+            mode : str, optional
+                Hidden layer degree arrangement, "sequential" or "random". Default: "sequential".
+            ifperturb : bool, optional
+                Whether to perturb the last layer bias. Default: False.
+            bias_mean : float, optional
+                Mean for bias perturbation. Default: 0.
+            bias_std : float, optional
+                Std for bias perturbation. Default: 1.
+            **kwargs : Other keyword arguments for KAN.
         """
 
         self.data_l = data_l
@@ -496,25 +529,38 @@ class CSGKMADE(MultKAN):
 
     def __init__(
         self,
-        data_l,
-        para_l,
-        hidden_layers=[],
-        para_hidden_layers=[],
-        input_order="sequential",
-        mode="sequential",
-        ifperturb=False,
-        bias_mean=0,
-        bias_std=1,
+        data_l: int,
+        para_l: int,
+        hidden_layers: list = [],
+        para_hidden_layers: list = [],
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
+        ifperturb: bool = False,
+        bias_mean: float = 0,
+        bias_std: float = 1,
         **kwargs,
     ):
         """
-        data_l:        data dimension
-        para_l:        para dimension
-        n_comps:       number of Gaussian distributions used to model the probability distributions
-        hidden_layers: list of number of nodes in hidden-layers
-        para_hidden_layers: list of number of nodes in para side hidden-layers
-        input_order:   arrangement of input-layer's degrees
-        mode:          arrangement of hidden-layer's degrees
+        Args:
+            data_l : int
+                Data dimension.
+            para_l : int
+                Para dimension.
+            hidden_layers : list, optional
+                Number of nodes in each hidden layer. Default: [] .
+            para_hidden_layers : list, optional
+                Number of nodes in each para side hidden layer. Default: [] .
+            input_order : str or list, optional
+                Input layer degree order, "sequential", "random" or custom list. Default: "sequential".
+            mode : str, optional
+                Hidden layer degree arrangement, "sequential" or "random". Default: "sequential".
+            ifperturb : bool, optional
+                Whether to perturb the last layer bias. Default: False.
+            bias_mean : float, optional
+                Mean for bias perturbation. Default: 0.
+            bias_std : float, optional
+                Std for bias perturbation. Default: 1.
+            **kwargs : Other keyword arguments for KAN.
         """
 
         self.data_l = data_l
@@ -667,27 +713,41 @@ class CMGKMADE(MultKAN):
 
     def __init__(
         self,
-        data_l,
-        para_l,
-        n_comps,
-        hidden_layers,
-        para_hidden_layers,
-        input_order="sequential",
-        mode="sequential",
-        ifperturb=False,
-        bias_mean=0,
-        bias_std=1,
+        data_l: int,
+        para_l: int,
+        n_comps: int,
+        hidden_layers: list,
+        para_hidden_layers: list,
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
+        ifperturb: bool = False,
+        bias_mean: float = 0,
+        bias_std: float = 1,
         **kwargs,
     ):
         """
-        data_l:             data dimension
-        para_l:             para dimension
-        n_comps:            number of Gaussian distributions used to model the probability distributions
-        hidden_layers:      list of number of nodes in data side hidden-layers
-        para_hidden_layers: list of number of nodes in para side hidden-layers
-
-        input_order:   arrangement of input-layer's degrees
-        mode:          arrangement of hidden-layer's degrees
+        Args:
+            data_l : int
+                Data dimension.
+            para_l : int
+                Para dimension.
+            n_comps : int
+                Number of Gaussian distributions.
+            hidden_layers : list, optional
+                Number of nodes in each hidden layer. Default: [] .
+            para_hidden_layers : list, optional
+                Number of nodes in each para side hidden layer. Default: [] .
+            input_order : str or list, optional
+                Input layer degree order, "sequential", "random" or custom list. Default: "sequential".
+            mode : str, optional
+                Hidden layer degree arrangement, "sequential" or "random". Default: "sequential".
+            ifperturb : bool, optional
+                Whether to perturb the last layer bias. Default: False.
+            bias_mean : float, optional
+                Mean for bias perturbation. Default: 0.
+            bias_std : float, optional
+                Std for bias perturbation. Default: 1.
+            **kwargs : Other keyword arguments for KAN.
         """
 
         self.data_l = data_l

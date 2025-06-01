@@ -8,41 +8,40 @@ import os
 
 def modified_fit(
     self,
-    dataset,
-    opt="LBFGS",
-    steps=100,
-    log=1,
-    lamb=0.0,
-    lamb_l1=1.0,
-    lamb_entropy=2.0,
-    lamb_coef=0.0,
-    lamb_coefdiff=0.0,
-    update_grid=True,
-    grid_update_num=10,
+    dataset: dict,
+    opt: str = "LBFGS",
+    steps: int = 100,
+    log: int = 1,
+    lamb: float = 0.0,
+    lamb_l1: float = 1.0,
+    lamb_entropy: float = 2.0,
+    lamb_coef: float = 0.0,
+    lamb_coefdiff: float = 0.0,
+    update_grid: bool = True,
+    grid_update_num: int = 10,
     loss_fn=None,
-    lr=1.0,
-    start_grid_update_step=-1,
-    stop_grid_update_step=50,
-    batch=-1,
-    metrics=None,
-    save_fig=False,
+    lr: float = 1.0,
+    start_grid_update_step: int = -1,
+    stop_grid_update_step: int = 50,
+    batch: int = -1,
+    metrics: list = None,
+    save_fig: bool = False,
     in_vars=None,
     out_vars=None,
-    beta=3,
-    save_fig_freq=1,
-    img_folder="./video",
-    singularity_avoiding=False,
-    y_th=1000.0,
-    reg_metric="edge_forward_spline_n",
-    display_metrics=None,
+    beta: float = 3,
+    save_fig_freq: int = 1,
+    img_folder: str = "./video",
+    singularity_avoiding: bool = False,
+    y_th: float = 1000.0,
+    reg_metric: str = "edge_forward_spline_n",
+    display_metrics: list = None,
 ):
     """
     training
 
     Args:
-    -----
-        dataset : dic
-            contains dataset['train_data'],dataset['test_data']
+        dataset : dict
+            contains dataset['train_data'], dataset['test_data']
         opt : str
             "LBFGS" or "Adam"
         steps : int
@@ -81,14 +80,13 @@ def modified_fit(
             singularity threshold (anything above the threshold is considered singular and is softened in some ways)
         reg_metric : str
             regularization metric. Choose from {'edge_forward_spline_n', 'edge_forward_spline_u', 'edge_forward_sum', 'edge_backward', 'node_backward'}
-        metrics : a list of metrics (as functions)
+        metrics : list, optional
             the metrics to be computed in training
-        display_metrics : a list of functions
+        display_metrics : list, optional
             the metric to be displayed in tqdm progress bar
 
     Returns:
-    --------
-        results : dic
+        results : dict
             results['train_loss'], 1D array of training losses (RMSE)
             results['test_loss'], 1D array of test losses (RMSE)
             results['reg'], 1D array of regularization

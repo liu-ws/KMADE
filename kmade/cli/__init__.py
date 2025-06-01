@@ -1,1 +1,1 @@
-"""Command-line interface for KMADE."""
+"""Command-line interface for quick start."""

@@ -12,25 +12,33 @@ mades are of the same type. If there is only one made in the stack, then it's eq
 
 
 class SGKMAF(nn.Module):
-
     def __init__(
         self,
-        data_l,
-        hidden_layers=[],
-        n_mades=1,
-        batch_norm=True,
-        input_order="sequential",
-        mode="sequential",
+        data_l: int,
+        hidden_layers: list = [],
+        n_mades: int = 1,
+        batch_norm: bool = True,
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
         **kwargs,
     ):
         """
-        Constructor.
-        :param data_l: dimension of data
-        :param hidden_layers: list with number of hidden units for each hidden layer
-        :param n_mades: number of mades
-        :param batch_norm: whether to use batch normalization between mades
-        :param input_order: order of inputs of last made
-        :param mode: strategy for assigning degrees to hidden nodes: can be 'random' or 'sequential'
+        Masked Autoregressive Flow with SGKMADE blocks.
+
+        Args:
+            data_l : int
+                Dimension of data.
+            hidden_layers : list, optional
+                Number of hidden units for each hidden layer. Default: [].
+            n_mades : int, optional
+                Number of MADEs. Default: 1.
+            batch_norm : bool, optional
+                Whether to use batch normalization between MADEs. Default: True.
+            input_order : str or list, optional
+                Order of inputs of last MADE. Default: "sequential".
+            mode : str, optional
+                Strategy for assigning degrees to hidden nodes: "random" or "sequential". Default: "sequential".
+            **kwargs : Other keyword arguments for SGKMADE.
         """
         super().__init__()
         # save input arguments
@@ -77,6 +85,17 @@ class SGKMAF(nn.Module):
         self.input_order = self.mades[0].degrees[0]
 
     def forward(self, x, log=True, update_grid=False):
+        """
+        Forward pass through the MAF.
+
+        Args:
+            x (torch.Tensor): Input data.
+            log (bool, optional): Whether to return log-likelihood. Default: True.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            tuple: (u, log-likelihood or likelihood)
+        """
         self.logdet_dudx = 0.0
 
         for i in range(self.n_mades):
@@ -106,15 +125,32 @@ class SGKMAF(nn.Module):
         return x, L if log else torch.exp(L)
 
     def loss_fn(self, x, update_grid=False):
+        """
+        Compute the negative log-likelihood loss.
 
+        Args:
+            x : torch.Tensor
+                Input data.
+            update_grid : bool, optional
+                Whether to update grid. Default: False.
+
+        Returns:
+            torch.Tensor: Loss value.
+        """
         return -torch.mean(self.forward(x, update_grid=update_grid)[1])
 
     def sample(self, n_samples=1, u=None):
         """
-        Generate samples, by propagating random numbers through each made.
-        :param n_samples: number of samples
-        :param u: random numbers to use in generating samples; if None, new random numbers are drawn
-        :return: samples
+        Generate samples by propagating random numbers through each MADE.
+
+        Args:
+            n_samples : int, optional
+                Number of samples. Default: 1.
+            u : torch.Tensor, optional
+                Random numbers to use in generating samples. If None, new random numbers are drawn.
+
+        Returns:
+            torch.Tensor: Generated samples.
         """
         x = (torch.randn(n_samples, self.data_l) if u is None else u).to(self.device)
 
@@ -137,43 +173,69 @@ class SGKMAF(nn.Module):
         return x
 
     def expr_fit(self):
+        """
+        Fit symbolic expressions for each MADE in the stack.
+        """
         for i in range(self.n_mades):
             print(f"fit expressions for made{i+1}:")
             self.mades[i].auto_symbolic()
 
     def expr_save(self, path):
+        """
+        Save symbolic expressions for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save expressions.
+        """
         for i in range(self.n_mades):
             save_expr(path=os.path.join(path, f"made{i+1}"), model=self.mades[i])
 
     def saveckpt(self, path):
+        """
+        Save checkpoints for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save checkpoints.
+        """
         for i in range(self.n_mades):
             self.mades[i].saveckpt(os.path.join(path, f"made{i+1}"))
 
 
 class CSGKMAF(nn.Module):
-
     def __init__(
         self,
-        data_l,
-        para_l,
-        hidden_layers=[],
-        para_hidden_layers=[],
-        n_mades=1,
-        batch_norm=True,
-        input_order="sequential",
-        mode="sequential",
+        data_l: int,
+        para_l: int,
+        hidden_layers: list = [],
+        para_hidden_layers: list = [],
+        n_mades: int = 1,
+        batch_norm: bool = True,
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
         **kwargs,
     ):
         """
-        Constructor.
-        :param data_l: dimension of data
-        :param para_l: dimension of parameter
-        :param hidden_layers: list with number of hidden units for each hidden layer
-        :param para_hidden_layers: list with number of hidden units for each hidden layer of parameter side
-        :param n_mades: number of mades
-        :param batch_norm: whether to use batch normalization between mades
-        :param input_order: order of inputs of last made
-        :param mode: strategy for assigning degrees to hidden nodes: can be 'random' or 'sequential'
+        Conditional Masked Autoregressive Flow with CSGKMADE blocks.
+
+        Args:
+            data_l : int
+                Dimension of data.
+            para_l : int
+                Dimension of parameter.
+            hidden_layers : list, optional
+                Number of hidden units for each hidden layer. Default: [].
+            para_hidden_layers : list, optional
+                Number of hidden units for each parameter hidden layer. Default: [].
+            n_mades : int, optional
+                Number of MADEs. Default: 1.
+            batch_norm : bool, optional
+                Whether to use batch normalization between MADEs. Default: True.
+            input_order : str or list, optional
+                Order of inputs of last MADE. Default: "sequential".
+            mode : str, optional
+                Strategy for assigning degrees to hidden nodes: "random" or "sequential". Default: "sequential".
+            **kwargs :
+                Other keyword arguments for CSGKMADE.
         """
         super().__init__()
         # save input arguments
@@ -222,6 +284,17 @@ class CSGKMAF(nn.Module):
         self.input_order = self.mades[0].degrees[0]
 
     def forward(self, x, log=True, update_grid=False):
+        """
+        Forward pass through the conditional MAF.
+
+        Args:
+            x (torch.Tensor): Input data.
+            log (bool, optional): Whether to return log-likelihood. Default: True.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            tuple: (u, log-likelihood or likelihood)
+        """
         self.logdet_dudx = 0.0
 
         for i in range(self.n_mades):
@@ -252,10 +325,31 @@ class CSGKMAF(nn.Module):
         return u, L if log else torch.exp(L)
 
     def loss_fn(self, x, update_grid=False):
+        """
+        Compute the negative log-likelihood loss.
 
+        Args:
+            x : torch.Tensor
+                Input data.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            torch.Tensor: Loss value.
+        """
         return -torch.mean(self.forward(x, update_grid=update_grid)[1])
 
     def sample(self, n_samples=1, u=None, para=[]):
+        """
+        Generate samples by propagating random numbers through each MADE.
+
+        Args:
+            n_samples (int, optional): Number of samples. Default: 1.
+            u (torch.Tensor, optional): Random numbers to use in generating samples. If None, new random numbers are drawn.
+            para (list, optional): Parameter values for conditional models. Default: [].
+
+        Returns:
+            torch.Tensor: Generated samples.
+        """
         x = (torch.randn(n_samples, self.data_l) if u is None else u).to(self.device)
         if self.batch_norm:
             # Reverse through the MADEs and batch norms
@@ -276,41 +370,65 @@ class CSGKMAF(nn.Module):
         return x
 
     def auto_symbolic(self):
+        """
+        Fit symbolic expressions for each MADE in the stack.
+        """
         for i in range(self.n_mades):
             print(f"auto_symbolic of made{i+1}:")
             self.mades[i].auto_symbolic()
 
     def expr_save(self, path):
+        """
+        Save symbolic expressions for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save expressions.
+        """
         for i in range(self.n_mades):
             save_expr(path=os.path.join(path, f"made{i+1}"), model=self.mades[i])
 
     def saveckpt(self, path):
+        """
+        Save checkpoints for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save checkpoints.
+        """
         for i in range(self.n_mades):
             self.mades[i].saveckpt(os.path.join(path, f"made{i+1}"))
 
 
 class MGKMAF(nn.Module):
-
     def __init__(
         self,
-        data_l,
-        hidden_layers,
-        n_comps,
-        n_mades,
-        batch_norm=True,
-        input_order="sequential",
-        mode="sequential",
+        data_l: int,
+        hidden_layers: list,
+        n_comps: int,
+        n_mades: int,
+        batch_norm: bool = True,
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
         **kwargs,
     ):
         """
-        Constructor.
-        :param data_l: dimension of data
-        :param n_comps: number of gaussians per conditional
-        :param hidden_layers: list with number of hidden units for each hidden layer
-        :param n_mades: number of mades
-        :param batch_norm: whether to use batch normalization between mades
-        :param input_order: order of inputs of last made
-        :param mode: strategy for assigning degrees to hidden nodes: can be 'random' or 'sequential'
+        Masked Autoregressive Flow with MGKMADE as the last block.
+
+        Args:
+            data_l : int
+                Dimension of data.
+            hidden_layers : list
+                Number of hidden units for each hidden layer.
+            n_comps : int
+                Number of Gaussians per conditional.
+            n_mades : int
+                Number of MADEs.
+            batch_norm : bool, optional
+                Whether to use batch normalization between MADEs. Default: True.
+            input_order : str or list, optional
+                Order of inputs of last MADE. Default: "sequential".
+            mode : str, optional
+                Strategy for assigning degrees to hidden nodes: "random" or "sequential". Default: "sequential".
+            **kwargs : Other keyword arguments for MGKMADE.
         """
         super().__init__()
         # save input arguments
@@ -363,6 +481,17 @@ class MGKMAF(nn.Module):
         self.mades.append(self.made)
 
     def forward(self, x, log=True, update_grid=False):
+        """
+        Forward pass through the MAF.
+
+        Args:
+            x (torch.Tensor): Input data.
+            log (bool, optional): Whether to return log-likelihood. Default: True.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            tuple: (u, log-likelihood or likelihood)
+        """
         # log likelihoods
         u, _ = self.maf.forward(x, log=True, update_grid=update_grid)
 
@@ -374,9 +503,29 @@ class MGKMAF(nn.Module):
         return u, L if log else torch.exp(L)
 
     def loss_fn(self, x, update_grid=False):
+        """
+        Compute the negative log-likelihood loss.
+
+        Args:
+            x (torch.Tensor): Input data.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            torch.Tensor: Loss value.
+        """
         return -torch.mean(self.forward(x, update_grid=update_grid)[1])
 
     def sample(self, n_samples=1, u=None):
+        """
+        Generate samples by propagating random numbers through each MADE.
+
+        Args:
+            n_samples (int, optional): Number of samples. Default: 1.
+            u (torch.Tensor, optional): Random numbers to use in generating samples. If None, new random numbers are drawn.
+
+        Returns:
+            torch.Tensor: Generated samples.
+        """
         x = (torch.randn(n_samples, self.data_l) if u is None else u).to(self.device)
         x = self.made.sample(n_samples, u=x)
         x = self.maf.sample(n_samples, u=x)
@@ -384,44 +533,60 @@ class MGKMAF(nn.Module):
         return x
 
     def auto_symbolic(self):
+        """
+        Fit symbolic expressions for each MADE in the stack.
+        """
         for i in range(self.n_mades):
             print(f"auto_symbolic of made{i+1}:")
             self.mades[i].auto_symbolic()
 
     def expr_save(self, path):
+        """
+        Save symbolic expressions for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save expressions.
+        """
         for i in range(self.n_mades):
             save_expr(path=os.path.join(path, f"made{i+1}"), model=self.mades[i])
 
     def saveckpt(self, path):
+        """
+        Save checkpoints for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save checkpoints.
+        """
         for i in range(self.n_mades):
             self.mades[i].saveckpt(os.path.join(path, f"made{i+1}"))
 
 
 class CMGKMAF(nn.Module):
-
     def __init__(
         self,
-        data_l,
-        hidden_layers,
-        para_hidden_layers,
-        n_comps,
-        n_mades,
-        batch_norm=True,
-        input_order="sequential",
-        mode="sequential",
+        data_l: int,
+        hidden_layers: list,
+        para_hidden_layers: list,
+        n_comps: int,
+        n_mades: int,
+        batch_norm: bool = True,
+        input_order: "str | list" = "sequential",
+        mode: str = "sequential",
         **kwargs,
     ):
         """
-        Constructor.
-        :param data_l: dimension of data
-        :param para_l: dimension of parameter
-        :param hidden_layers: list with number of hidden units for each hidden layer
-        :param para_hidden_layers: list with number of hidden units for each hidden layer of parameter side
-        :param n_mades: number of mades
-        :param n_comps: number of gaussians per conditional
-        :param batch_norm: whether to use batch normalization between mades
-        :param input_order: order of inputs of last made
-        :param mode: strategy for assigning degrees to hidden nodes: can be 'random' or 'sequential'
+        Conditional Masked Autoregressive Flow with CMGKMADE as the last block.
+
+        Args:
+            data_l (int): Dimension of data.
+            hidden_layers (list): Number of hidden units for each hidden layer.
+            para_hidden_layers (list): Number of hidden units for each parameter hidden layer.
+            n_comps (int): Number of Gaussians per conditional.
+            n_mades (int): Number of MADEs.
+            batch_norm (bool, optional): Whether to use batch normalization between MADEs. Default: True.
+            input_order (str or list, optional): Order of inputs of last MADE. Default: "sequential".
+            mode (str, optional): Strategy for assigning degrees to hidden nodes: "random" or "sequential". Default: "sequential".
+            **kwargs: Other keyword arguments for CMGKMADE.
         """
         super().__init__()
         # save input arguments
@@ -473,6 +638,17 @@ class CMGKMAF(nn.Module):
         self.mades.append(self.made)
 
     def forward(self, x, log=True, update_grid=False):
+        """
+        Forward pass through the conditional MAF.
+
+        Args:
+            x (torch.Tensor): Input data.
+            log (bool, optional): Whether to return log-likelihood. Default: True.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            tuple: (u, log-likelihood or likelihood)
+        """
         # log likelihoods
         u, _ = self.maf.forward(x, log=True, update_grid=update_grid)
         x[:, 0 : self.data_l] = u
@@ -485,9 +661,30 @@ class CMGKMAF(nn.Module):
         return u, L if log else torch.exp(L)
 
     def loss_fn(self, x, update_grid=False):
+        """
+        Compute the negative log-likelihood loss.
+
+        Args:
+            x (torch.Tensor): Input data.
+            update_grid (bool, optional): Whether to update grid. Default: False.
+
+        Returns:
+            torch.Tensor: Loss value.
+        """
         return -torch.mean(self.forward(x, update_grid=update_grid)[1])
 
     def sample(self, n_samples=1, u=None, para=[]):
+        """
+        Generate samples by propagating random numbers through each MADE.
+
+        Args:
+            n_samples (int, optional): Number of samples. Default: 1.
+            u (torch.Tensor, optional): Random numbers to use in generating samples. If None, new random numbers are drawn.
+            para (list, optional): Parameter values for conditional models. Default: [].
+
+        Returns:
+            torch.Tensor: Generated samples.
+        """
         x = (torch.randn(n_samples, self.data_l) if u is None else u).to(self.device)
         x = self.made.sample(n_samples, u=x, para=para)
         x = self.maf.sample(n_samples, u=x, para=para)
@@ -495,14 +692,29 @@ class CMGKMAF(nn.Module):
         return x
 
     def auto_symbolic(self):
+        """
+        Fit symbolic expressions for each MADE in the stack.
+        """
         for i in range(self.n_mades):
             print(f"auto_symbolic of made{i+1}:")
             self.mades[i].auto_symbolic()
 
     def expr_save(self, path):
+        """
+        Save symbolic expressions for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save expressions.
+        """
         for i in range(self.n_mades):
             save_expr(path=os.path.join(path, f"made{i+1}"), model=self.mades[i])
 
     def saveckpt(self, path):
+        """
+        Save checkpoints for each MADE in the stack.
+
+        Args:
+            path (str): Directory to save checkpoints.
+        """
         for i in range(self.n_mades):
             self.mades[i].saveckpt(os.path.join(path, f"made{i+1}"))

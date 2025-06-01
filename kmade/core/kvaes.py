@@ -6,13 +6,13 @@ from kan import KAN
 class MGKVAE(nn.Module):
     def __init__(
         self,
-        data_l,
-        latent_l,
-        latent_n,
-        n_comps=1,
-        encoder_hidden=[],
-        decoder_hidden=[],
-        ckpt_path="checkpoints/vae",
+        data_l: int,
+        latent_l: int,
+        latent_n: int,
+        n_comps: int = 1,
+        encoder_hidden: list = [],
+        decoder_hidden: list = [],
+        ckpt_path: str = "checkpoints/vae",
         **kwargs
     ):
         super(MGKVAE, self).__init__()

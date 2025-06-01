@@ -7,16 +7,46 @@ import torch
 import os
 
 
-# forward function of symbolic expressions
-def forward(funcs, input):
+def forward(funcs: list, input: np.ndarray) -> np.ndarray:
+    """
+    Evaluate a list of symbolic functions on input data.
+
+    Args:
+        funcs : list
+            List of callable functions.
+        input : np.ndarray
+            Input data, shape (n, d).
+
+    Returns:
+        np.ndarray
+            Output values, shape (n, len(funcs)).
+    """
     output = np.zeros((input.shape[0], len(funcs)))
     for i, func in enumerate(funcs):
         output[:, i] = func(*input.T)
     return output
 
 
-# sample with symbolic expressions of kmades
-def sampler(path, n_samples, para=[], u=None):
+def sampler(
+    path: str, n_samples: int, para: list = [], u: np.ndarray = None
+) -> np.ndarray:
+    """
+    Sample from a symbolic KMADE model.
+
+    Args:
+        path : str
+            Path prefix to the saved symbolic expressions.
+        n_samples : int
+            Number of samples to generate.
+        para : list, optional
+            Parameter values for conditional models. Default: [].
+        u : np.ndarray, optional
+            Standard Gaussian noise. Default: None.
+
+    Returns:
+        np.ndarray
+            Generated samples, shape (n_samples, data_l).
+    """
 
     path = path + "_expr.yml"
 
@@ -102,7 +132,26 @@ def sampler(path, n_samples, para=[], u=None):
 
 
 # sample with symbolic expressions of kmafs
-def sampler_kmaf(path, n_samples=1, n_mades=1, para=[]):
+def sampler_kmaf(
+    path: str, n_samples: int = 1, n_mades: int = 1, para: list = []
+) -> np.ndarray:
+    """
+    Sample from a symbolic KMAF model (stack of KMADEs).
+
+    Args:
+        path : str
+            Path prefix to the saved symbolic expressions.
+        n_samples : int, optional
+            Number of samples to generate. Default: 1.
+        n_mades : int, optional
+            Number of MADEs in the stack. Default: 1.
+        para : list, optional
+            Parameter values for conditional models. Default: [].
+
+    Returns:
+        np.ndarray
+            Generated samples, shape (n_samples, data_l).
+    """
     u = None
     for i in range(n_mades):
         u = sampler(
@@ -113,7 +162,20 @@ def sampler_kmaf(path, n_samples=1, n_mades=1, para=[]):
 
 
 # compute the u of the given data x using symbolic expressions of kmades
-def compute_u(path, x):
+def compute_u(path: str, x: np.ndarray):
+    """
+    Compute the u variable for given data using symbolic expressions.
+
+    Args:
+        path : str
+            Path to the saved symbolic expressions.
+        x : np.ndarray
+            Input data, shape (n, d).
+
+    Returns:
+        tuple
+            (u, m, logp) for single Gaussian, (u, m, logp, loga) for mixture.
+    """
 
     with open(path, "r") as stream:
         config = yaml.safe_load(stream)
@@ -151,7 +213,22 @@ def compute_u(path, x):
 
 
 # compute the likelihood of the given data x using symbolic expressions of mgkmade and cmgkmade
-def likelihood(path, x, log=True):
+def likelihood(path: str, x: np.ndarray, log: bool = True) -> np.ndarray:
+    """
+    Compute the likelihood of given data using symbolic expressions.
+
+    Args:
+        path : str
+            Path to the saved symbolic expressions.
+        x : np.ndarray
+            Input data, shape (n, d).
+        log : bool, optional
+            Whether to return log-likelihood. Default: True.
+
+    Returns:
+        np.ndarray
+            Likelihood or log-likelihood values.
+    """
     u, m, logp, loga = compute_u(path, x)
     data_l = u.shape[2]
     L = torch.log(torch.sum(torch.exp(loga - 0.5 * u**2 + 0.5 * logp), axis=1))
@@ -163,7 +240,26 @@ def likelihood(path, x, log=True):
 
 
 # compute the probability density function of the given data x using symbolic expressions of kmafs
-def compute_kmaf(x, path, n_mades=1, log=True):
+def compute_kmaf(
+    x: np.ndarray, path: str, n_mades: int = 1, log: bool = True
+) -> np.ndarray:
+    """
+    Compute the probability density function of the given data using symbolic expressions of KMAF.
+
+    Args:
+        x : np.ndarray
+            Input data, shape (n, d).
+        path : str
+            Path prefix to the saved symbolic expressions.
+        n_mades : int, optional
+            Number of MADEs in the stack. Default: 1.
+        log : bool, optional
+            Whether to return log-likelihood. Default: True.
+
+    Returns:
+        np.ndarray
+            Probability density or log-likelihood values.
+    """
 
     # read the information of the last made
     with open(path + f"made{n_mades}_expr.yml", "r") as stream:

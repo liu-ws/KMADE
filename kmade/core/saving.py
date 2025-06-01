@@ -1,12 +1,30 @@
 import torch
 import sympy as sp
-from sympy import symbols, ex_round
+from sympy import symbols
 import yaml
 from kan import SYMBOLIC_LIB
+from kan.utils import ex_round
 
 
-# Modify the saving method of KAN for KMADEs
-def save_model(model, path, dataset=None, dtype=torch.float32):
+def save_model(
+    model: object, path: str, dataset: dict = None, dtype: torch.dtype = torch.float32
+) -> None:
+    """
+    Save a KMADE model and its configuration.
+
+    Args:
+        model : object
+            Model instance to save.
+        path : str
+            File path prefix for saving.
+        dataset : dict, optional
+            Dataset to save (must contain 'train_input', 'test_input').
+        dtype : torch.dtype, optional
+            Data type for model weights. Default: torch.float32.
+
+    Returns:
+        None
+    """
 
     model_name = type(model).__name__
 
@@ -65,8 +83,22 @@ def save_model(model, path, dataset=None, dtype=torch.float32):
         torch.save({"train_data": train_data, "test_data": test_data}, f"{path}_data")
 
 
-# Modify the loading method of KAN for KMADEs
-def load_model(path, ifloaddata=False, dtype=torch.float32):
+def load_model(path: str, ifloaddata: bool = False, dtype: torch.dtype = torch.float32):
+    """
+    Load a KMADE model and optionally its dataset.
+
+    Args:
+        path : str
+            File path prefix for loading.
+        ifloaddata : bool, optional
+            Whether to load dataset. Default: False.
+        dtype : torch.dtype, optional
+            Data type for model weights. Default: torch.float32.
+
+    Returns:
+        model or (model, dataset)
+            Loaded model, and dataset if ifloaddata is True.
+    """
 
     with open(f"{path}_config.yml", "r") as stream:
         config = yaml.safe_load(stream)
@@ -154,9 +186,21 @@ def load_model(path, ifloaddata=False, dtype=torch.float32):
 
 
 # save and read expressions of the distribution got by model
-def save_expr(model, path, tolerance=None):
-    # save every output expr
-    # tolerance: the tolerance of the rounding
+def save_expr(model: object, path: str, tolerance: float = None) -> None:
+    """
+    Save symbolic expressions of the model.
+
+    Args:
+        model : object
+            Model instance.
+        path : str
+            File path prefix for saving.
+        tolerance : float, optional
+            Rounding tolerance for expressions.
+
+    Returns:
+        None
+    """
 
     path = path + "_expr.yml"
     expressions = []
@@ -181,7 +225,21 @@ def save_expr(model, path, tolerance=None):
         yaml.dump(dic, outfile, default_flow_style=False)
 
 
-def read_expr(path, simplify=False):
+def read_expr(path: str, simplify: bool = False):
+    """
+    Read symbolic expressions from file.
+
+    Args:
+        path : str
+            File path prefix for loading.
+        simplify : bool, optional
+            Whether to simplify the loaded expressions.
+
+    Returns:
+        sympy.Expr
+            The symbolic probability density function.
+    """
+
     # reture the expreession of the probability density function of the distribution got by model
     # load the expressions from the file
     path = path + "_expr.yml"

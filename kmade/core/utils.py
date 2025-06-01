@@ -5,11 +5,23 @@ import matplotlib
 import corner
 
 
-def discrete_sample(p, num_samples, device="cuda:0"):
+def discrete_sample(
+    p: torch.Tensor, num_samples: int, device: "str | torch.device" = "cuda:0"
+) -> torch.Tensor:
     """
-    sample from a discrete distribution
-    p:            discrete distribution with N values
-    num_samples:  number of samples
+    Sample from a discrete distribution.
+
+    Args:
+        p : torch.Tensor
+            Discrete distribution with N values, shape (batch, N).
+        num_samples : int
+            Number of samples to draw.
+        device : str or torch.device, optional
+            Device for computation. Default: "cuda:0".
+
+    Returns:
+        torch.Tensor
+            Indices of sampled values, shape (num_samples,).
     """
 
     # Calculating the cumulative distribution
@@ -27,7 +39,32 @@ def discrete_sample(p, num_samples, device="cuda:0"):
 
 
 # MMD
-def gaussian_kernel_mmd(sample1, sample2, kernel_mul=2.0, kernel_num=5, fix_sigma=None):
+def gaussian_kernel_mmd(
+    sample1: np.ndarray,
+    sample2: np.ndarray,
+    kernel_mul: float = 2.0,
+    kernel_num: int = 5,
+    fix_sigma: float = None,
+) -> np.ndarray:
+    """
+    Compute the Gaussian kernel matrix for MMD.
+
+    Args:
+        sample1 : np.ndarray
+            First sample, shape (n1, d).
+        sample2 : np.ndarray
+            Second sample, shape (n2, d).
+        kernel_mul : float, optional
+            Multiplier for bandwidth. Default: 2.0.
+        kernel_num : int, optional
+            Number of bandwidths. Default: 5.
+        fix_sigma : float, optional
+            Fixed bandwidth. If None, use median heuristic.
+
+    Returns:
+        np.ndarray
+            Kernel matrix, shape (n1+n2, n1+n2).
+    """
 
     n_samples = sample1.shape[0] + sample2.shape[0]
     total = np.concatenate(
@@ -61,7 +98,32 @@ def gaussian_kernel_mmd(sample1, sample2, kernel_mul=2.0, kernel_num=5, fix_sigm
     return sum(kernel_val)
 
 
-def MMD(sample1, sample2, kernel_mul=2.0, kernel_num=5, fix_sigma=None):
+def MMD(
+    sample1: np.ndarray,
+    sample2: np.ndarray,
+    kernel_mul: float = 2.0,
+    kernel_num: int = 5,
+    fix_sigma: float = None,
+) -> float:
+    """
+    Compute Maximum Mean Discrepancy (MMD) between two samples.
+
+    Args:
+        sample1 : np.ndarray
+            First sample, shape (n1, d).
+        sample2 : np.ndarray
+            Second sample, shape (n2, d).
+        kernel_mul : float, optional
+            Multiplier for bandwidth. Default: 2.0.
+        kernel_num : int, optional
+            Number of bandwidths. Default: 5.
+        fix_sigma : float, optional
+            Fixed bandwidth. If None, use median heuristic.
+
+    Returns:
+        float
+            MMD loss value.
+    """
 
     sample1 = np.array(sample1)
     sample2 = np.array(sample2)
@@ -86,13 +148,21 @@ def MMD(sample1, sample2, kernel_mul=2.0, kernel_num=5, fix_sigma=None):
     return loss
 
 
-def js_divergence(p, q):
+def js_divergence(p: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
     """
     Calculate the Jensen-Shannon divergence between two distributions using PyTorch.
 
-    p: First distribution (torch tensor)
-    q: Second distribution (torch tensor)
+    Args:
+        p : torch.Tensor
+            First distribution.
+        q : torch.Tensor
+            Second distribution.
+
+    Returns:
+        torch.Tensor
+            JS divergence.
     """
+
     # Calculate the average distribution
     m = 0.5 * (p + q)
 
@@ -101,13 +171,21 @@ def js_divergence(p, q):
     return jsd
 
 
-def kl_divergence(p, q):
+def kl_divergence(p: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
     """
     Calculate the Kullback-Leibler divergence using PyTorch.
 
-    p: First distribution (torch tensor)
-    q: Second distribution (torch tensor)
+    Args:
+        p : torch.Tensor
+            First distribution.
+        q : torch.Tensor
+            Second distribution.
+
+    Returns:
+        torch.Tensor
+            KL divergence.
     """
+
     # Avoid log of zero
     p = torch.clamp(p, min=1e-10)
     q = torch.clamp(q, min=1e-10)
@@ -115,14 +193,14 @@ def kl_divergence(p, q):
 
 
 def pp_plot(
-    sample1,
-    sample2,
+    sample1: np.ndarray,
+    sample2: np.ndarray,
     color_bar,
-    column_names,
-    sample_lw=1,
-    path=None,
-    figure_size=(5, 5),
-    axes_kwargs={
+    column_names: list,
+    sample_lw: float = 1,
+    path: str = None,
+    figure_size: tuple = (5, 5),
+    axes_kwargs: dict = {
         "width": 2,
         "length": 4,
         "size": 12,
@@ -130,14 +208,14 @@ def pp_plot(
         "rotationx": 0,
         "rotationy": 0,
     },
-    legend_kwargs={
+    legend_kwargs: dict = {
         "loc": "best",
         "prop": {"size": 12},
         "ls": [],
         "handlelength": 1.5,
         "color": "black",
     },
-    title_kwargs={
+    title_kwargs: dict = {
         "content": "",
         "size": 12,
         "loc": "center",
@@ -146,7 +224,7 @@ def pp_plot(
         "weight": "bold",
         "if_title": False,
     },
-    label_kwargs={
+    label_kwargs: dict = {
         "label1": "sample1",
         "label2": "sample2",
         "size": 12,
@@ -154,64 +232,47 @@ def pp_plot(
         "color1": "black",
         "color2": "black",
     },
-    ref_kwargs={
+    ref_kwargs: dict = {
         "width": 2,
         "alpha": 0.5,
         "color": "red",
         "if_ref": False,
         "linestyle": "--",
     },
-):
+) -> None:
     """
-    Plot the p-p plot for two samples on a single graph
+    Plot the p-p plot for two samples on a single graph.
 
-    column_names: names of variables
-    color_bar: color map or list of colors for each variable
-    sample_lw: line width of samples
+    Args:
+        sample1 : np.ndarray
+            First sample, shape (n, d).
+        sample2 : np.ndarray
+            Second sample, shape (n, d).
+        color_bar : list or Colormap
+            Color map or list of colors for each variable.
+        column_names : list
+            Names of variables.
+        sample_lw : float, optional
+            Line width of samples. Default: 1.
+        path : str, optional
+            Path to save the figure.
+        figure_size : tuple, optional
+            Size of the figure. Default: (5, 5).
+        axes_kwargs : dict, optional
+            Keyword arguments for axes.
+        legend_kwargs : dict, optional
+            Keyword arguments for legend.
+        title_kwargs : dict, optional
+            Keyword arguments for title.
+        label_kwargs : dict, optional
+            Keyword arguments for x/y labels.
+        ref_kwargs : dict, optional
+            Keyword arguments for reference line.
 
-    ref_kwargs: keyword arguments for reference line
-                if_ref: whether to show reference line or not
-                color: color of reference line
-                width: line width of reference line
-                alpha: transparency of reference line
-
-    axes_kwargs: keyword arguments for axes
-                width: width of egdes of the plot
-                length: length of the axes ticks
-                size: font size
-                color: color of the axes numbers and edges of the plot
-                rotationx: x-axis number rotation
-                rotationy: y-axis number rotation
-
-    legend_kwargs: keyword arguments for legend
-                loc: location of the legend
-                prop: font properties of the legend
-                    size: font size
-                ls: list of line styles for each column
-                handlelength: length of the legend handles
-                color: color of legend
-
-    title_kwargs: keyword arguments for title
-                content: content of the title
-                size: font size of the title
-                loc: location of the title
-                color: color of the title
-                family: font family of the title
-                weight: thickness of the title
-                if_title: whether to show title or not
-
-    label_kwargs: keyword arguments for x y labels
-                label1: label of sample1
-                label2: label of sample2
-                size: font size of the labels
-                family: font family of the labels
-                color1: color of label1
-                color2: color of label2
-
-    path: path to save the figure
-    figure_size: size of the figure
-
+    Returns:
+        None
     """
+
     num_columns = sample1.shape[1]  # Get the number of columns
     plt.rcdefaults()
     plt.rcParams.update(
@@ -351,24 +412,24 @@ def pp_plot(
 
 
 def qq_plot(
-    sample1,
-    sample2,
-    column_names,
-    rows,
-    cols,
-    figure_size,
-    path=None,
-    ref_color="red",
-    ref_lw=2,
-    axes_kwargs={
+    sample1: np.ndarray,
+    sample2: np.ndarray,
+    column_names: list,
+    rows: int,
+    cols: int,
+    figure_size: tuple,
+    path: str = None,
+    ref_color: str = "red",
+    ref_lw: float = 2,
+    axes_kwargs: dict = {
         "width": 2,
         "size": 12,
         "color": "black",
         "rotationx": 0,
         "rotationy": 0,
     },
-    legend_kwargs={"loc": "best", "prop": {"size": 12}, "color": "black"},
-    title_kwargs={
+    legend_kwargs: dict = {"loc": "best", "prop": {"size": 12}, "color": "black"},
+    title_kwargs: dict = {
         "content": "",
         "size": 12,
         "color": "black",
@@ -377,7 +438,7 @@ def qq_plot(
         "pad": 0.05,
         "if_title": False,
     },
-    label_kwargs={
+    label_kwargs: dict = {
         "label1": "sample1",
         "label2": "sample2",
         "size": 12,
@@ -388,53 +449,42 @@ def qq_plot(
         "weight2": "bold",
         "pad": 0,
     },
-):
+) -> None:
     """
-    sample1:
-    sample2:
-    column_names: names of variables
-    rows: number of rows of subplots
-    cols: number of columns of subplots
-    figure_size: size of the figure
-    path: path to save the figure
-    ref_color: color of 45 degree reference line
-    ref_lw: line width of 45 degree reference line
+    Plot Q-Q plots for each variable in two samples.
 
-    axes_kwargs: keyword arguments for axes
-                width: width of egdes of the plot
-                family: font family for axes numbers
-                size: font size of axes numbers
-                color: color of the axes numbers and edges of the plot
-                rotationx: x-axis number rotation
-                rotationy: y-axis number rotation
+    Args:
+        sample1 : np.ndarray
+            First sample, shape (n, d).
+        sample2 : np.ndarray
+            Second sample, shape (n, d).
+        column_names : list
+            Names of variables.
+        rows : int
+            Number of rows of subplots.
+        cols : int
+            Number of columns of subplots.
+        figure_size : tuple
+            Size of the figure (width, height).
+        path : str, optional
+            Path to save the figure.
+        ref_color : str, optional
+            Color of 45 degree reference line.
+        ref_lw : float, optional
+            Line width of 45 degree reference line.
+        axes_kwargs : dict, optional
+            Keyword arguments for axes.
+        legend_kwargs : dict, optional
+            Keyword arguments for legend.
+        title_kwargs : dict, optional
+            Keyword arguments for title.
+        label_kwargs : dict, optional
+            Keyword arguments for x/y labels.
 
-    legend_kwargs: keyword arguments for legend
-                loc: location of the legend
-                prop: font properties of the legend
-                    size: font size of the legend
-                color: color of legend
-
-    title_kwargs: keyword arguments for title
-                content: content of the title
-                size: font size of the title
-                color: color of the title
-                family: font family of the title
-                weight: thickness of the title
-                pad: distance of the title from the top of the figure
-                if_title: whether to show title or not
-
-    label_kwargs: keyword arguments for x y labels
-                label1: label of sample1
-                label2: label of sample2
-                size: font size of the labels
-                family: font family of the labels
-                color1: color of label1
-                color2: color of label2
-                weight1: thickness of label1
-                weight2: thickness of label2
-                pad: distance of the labels from the edges of the figure
-
+    Returns:
+        None
     """
+
     # Ensure the samples are of the same shape
     assert sample1.shape == sample2.shape, "Samples must have the same shape"
     plt.rcdefaults()
@@ -529,7 +579,7 @@ def qq_plot(
         label_kwargs["label1"],
         fontsize=label_kwargs["size"],
         color=label_kwargs["color1"],
-        weight=label_kwargs["weight1"],
+        weight=label_kwargs["weight"],
         ha="center",
     )
     fig.text(
@@ -549,11 +599,11 @@ def qq_plot(
 
 # better corner plot
 def corner_plot(
-    data1,
-    data2=None,
-    path=None,
-    pad_inches=0.1,
-    contour_kwargs={
+    data1: np.ndarray,
+    data2: np.ndarray = None,
+    path: str = None,
+    pad_inches: float = 0.1,
+    contour_kwargs: dict = {
         "colors1": [],
         "colors2": [],
         "levels": [0.5, 0.9],
@@ -562,16 +612,16 @@ def corner_plot(
         "smooth": 1,
         "alpha": 0.5,
     },
-    contourf_kwargs={"colors": []},
-    hist_kwargs={
+    contourf_kwargs: dict = {"colors": []},
+    hist_kwargs: dict = {
         "color": [],
         "width": [2, 2.5],
         "alpha": 1,
         "bins": 20,
         "smooth1d": 0.1,
     },
-    var_kwargs={"names": [], "ranges": [], "size": 12, "pad": -0.2},
-    axes_kwargs={
+    var_kwargs: dict = {"names": [], "ranges": [], "size": 12, "pad": -0.2},
+    axes_kwargs: dict = {
         "width": 2,
         "length": 4,
         "size": 12,
@@ -580,7 +630,7 @@ def corner_plot(
         "rotationy": 0,
         "max_n_ticks": 3,
     },
-    legend_kwargs={
+    legend_kwargs: dict = {
         "legend1": "sample1",
         "legend2": "sample2",
         "loc1": (0, 0),
@@ -590,46 +640,36 @@ def corner_plot(
         "weight1": "bold",
         "weight2": "bold",
     },
-):
+) -> None:
     """
-    counter_kwargs: keyword arguments for contour plot
-                colors1: counter colors of data1
-                colors2: counter colors of data2
-                levels: levels of the contours
-                width: width of the contours
-                linestyles: linestyles of the contours
-                smooth: smoothing factor of the contours
-                alpha: transparency of the contours
+    Plot a corner plot for one or two datasets.
 
-    contourf_kwargs:keyword arguments for contourf plot
-                colors: colors between counters
+    Args:
+        data1 : np.ndarray
+            First dataset, shape (n, d).
+        data2 : np.ndarray, optional
+            Second dataset, shape (n, d).
+        path : str, optional
+            Path to save the figure.
+        pad_inches : float, optional
+            Padding for saving figure.
+        contour_kwargs : dict, optional
+            Keyword arguments for contour plot.
+        contourf_kwargs : dict, optional
+            Keyword arguments for contourf plot.
+        hist_kwargs : dict, optional
+            Keyword arguments for histograms.
+        var_kwargs : dict, optional
+            Variable names, ranges, etc.
+        axes_kwargs : dict, optional
+            Keyword arguments for axes.
+        legend_kwargs : dict, optional
+            Keyword arguments for legend.
 
-    hist_kwargs: keyword arguments for hists of data1 and data2
-                color: color of the hists
-                width: width of the hists
-                alpha: transparency of the hists
-                bins: number of bins of the hists
-                smooth1d: smoothing factor of the hists
-
-    axes_kwargs: keyword arguments for axes
-                width: width of the edges of the figure
-                length: length of the ticks
-                size: font size of the axes numbers
-                color: color of the axes numbers
-                rotationx: rotation of the x-axis numbers
-                rotationy: rotation of the y-axis numbers
-                max_n_ticks: maximum number of ticks on the axes
-
-    legend_kwargs: keyword arguments for legend
-                legend1: legend of data1
-                legend2: legend of data2
-                loc1: location of legend1
-                loc2: location of legend2
-                size: font size of the legend
-                family: font family of the legend
-                weight1: thickness of legend1
-                weight2: thickness of legend2
+    Returns:
+        None
     """
+
     plt.rcdefaults()
 
     plt.rcParams.update(

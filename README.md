@@ -16,13 +16,13 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-Apply our method to the GW150914 event posterior data and reproduce the results from our paper with the following commands:
+Apply our method to the GW150914 event posterior data and reproduce the results in our paper with the following commands:
 
 ```bash
 # Obtain data
 python -m kmade.cli.data
 
-# Train neural network and perform symbolication
+# Train neural network and perform symbolification
 python -m kmade.cli.train
 
 # Resample from neural network and symbolic expression
