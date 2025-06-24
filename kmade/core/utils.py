@@ -280,7 +280,7 @@ def pp_plot(
             "text.usetex": True,
             "mathtext.fontset": "stix",
             "font.family": "serif",
-            "text.latex.preamble": [r"\usepackage{bm}"],
+            "text.latex.preamble": r"\usepackage{bm}",
         }
     )
     # Define a color map for different columns
@@ -411,192 +411,6 @@ def pp_plot(
         plt.savefig(path, bbox_inches="tight")
 
 
-def qq_plot(
-    sample1: np.ndarray,
-    sample2: np.ndarray,
-    column_names: list,
-    rows: int,
-    cols: int,
-    figure_size: tuple,
-    path: str = None,
-    ref_color: str = "red",
-    ref_lw: float = 2,
-    axes_kwargs: dict = {
-        "width": 2,
-        "size": 12,
-        "color": "black",
-        "rotationx": 0,
-        "rotationy": 0,
-    },
-    legend_kwargs: dict = {"loc": "best", "prop": {"size": 12}, "color": "black"},
-    title_kwargs: dict = {
-        "content": "",
-        "size": 12,
-        "color": "black",
-        "family": "Times New Roman",
-        "weight": "bold",
-        "pad": 0.05,
-        "if_title": False,
-    },
-    label_kwargs: dict = {
-        "label1": "sample1",
-        "label2": "sample2",
-        "size": 12,
-        "family": "Times New Roman",
-        "color1": "black",
-        "color2": "black",
-        "weight1": "bold",
-        "weight2": "bold",
-        "pad": 0,
-    },
-) -> None:
-    """
-    Plot Q-Q plots for each variable in two samples.
-
-    Args:
-        sample1 : np.ndarray
-            First sample, shape (n, d).
-        sample2 : np.ndarray
-            Second sample, shape (n, d).
-        column_names : list
-            Names of variables.
-        rows : int
-            Number of rows of subplots.
-        cols : int
-            Number of columns of subplots.
-        figure_size : tuple
-            Size of the figure (width, height).
-        path : str, optional
-            Path to save the figure.
-        ref_color : str, optional
-            Color of 45 degree reference line.
-        ref_lw : float, optional
-            Line width of 45 degree reference line.
-        axes_kwargs : dict, optional
-            Keyword arguments for axes.
-        legend_kwargs : dict, optional
-            Keyword arguments for legend.
-        title_kwargs : dict, optional
-            Keyword arguments for title.
-        label_kwargs : dict, optional
-            Keyword arguments for x/y labels.
-
-    Returns:
-        None
-    """
-
-    # Ensure the samples are of the same shape
-    assert sample1.shape == sample2.shape, "Samples must have the same shape"
-    plt.rcdefaults()
-    plt.rcParams.update(
-        {
-            "text.usetex": True,
-            "mathtext.fontset": "stix",
-            "font.family": "serif",
-            "text.latex.preamble": [r"\usepackage{bm}"],
-        }
-    )
-
-    num_features = sample1.shape[1]  # Number of physical quantities
-    total_plots = rows * cols  # Total number of subplots
-    fig, axes = plt.subplots(
-        rows, cols, figsize=(figure_size[0] * cols, figure_size[1] * rows)
-    )  # Create subplots
-    axes = axes.flatten()  # Flatten the axes array for easy indexing
-
-    for i in range(num_features):
-        # Get the i-th column from both samples
-        data1 = sample1[:, i]
-        data2 = sample2[:, i]
-
-        # Sort the data
-        sorted_data1 = np.sort(data1)
-        sorted_data2 = np.sort(data2)
-
-        # Calculate the quantiles
-        quantiles1 = np.percentile(sorted_data1, np.linspace(0, 100, len(sorted_data1)))
-        quantiles2 = np.percentile(sorted_data2, np.linspace(0, 100, len(sorted_data2)))
-
-        # Create Q-Q plot
-        axes[i].scatter(quantiles1, quantiles2, s=5, label=f"{column_names[i]}")
-        axes[i].plot(
-            [min(quantiles1), max(quantiles1)],
-            [min(quantiles1), max(quantiles1)],
-            color=ref_color,
-            linestyle="--",
-            linewidth=ref_lw,
-            label="45 Degree",
-        )  # Reference line
-        axes[i].legend(
-            loc=legend_kwargs["loc"],
-            prop=legend_kwargs["prop"],
-            labelcolor=legend_kwargs["color"],
-        )
-
-    # Hide any unused subplots if num_features < total_plots
-    for j in range(num_features, total_plots):
-        fig.delaxes(axes[j])
-    fig.tight_layout()  # Adjust layout to prevent overlap
-
-    for ax in fig.get_axes():
-        ax.spines["top"].set_linewidth(axes_kwargs["width"])
-        ax.spines["right"].set_linewidth(axes_kwargs["width"])
-        ax.spines["bottom"].set_linewidth(axes_kwargs["width"])
-        ax.spines["left"].set_linewidth(axes_kwargs["width"])
-        ax.tick_params(width=axes_kwargs["width"])
-
-    for ax in fig.get_axes():
-        for tick in ax.xaxis.get_major_ticks():
-            tick.label1.set_fontproperties(axes_kwargs["family"])
-            tick.label1.set_fontsize(axes_kwargs["size"])
-            tick.label1.set_fontweight(axes_kwargs["weight"])
-            tick.label1.set_color(axes_kwargs["color"])
-            tick.label1.set_rotation(axes_kwargs["rotationx"])
-        for tick in ax.yaxis.get_major_ticks():
-            tick.label1.set_fontproperties(axes_kwargs["family"])
-            tick.label1.set_fontsize(axes_kwargs["size"])
-            tick.label1.set_fontweight(axes_kwargs["weight"])
-            tick.label1.set_color(axes_kwargs["color"])
-            tick.label1.set_rotation(axes_kwargs["rotationy"])
-
-    plt.rcParams.update({"text.usetex": False, "font.family": title_kwargs["family"]})
-    if title_kwargs["if_title"]:
-        fig.text(
-            0.5,
-            1 + title_kwargs["pad"],
-            title_kwargs["content"],
-            ha="center",
-            va="top",
-            fontsize=title_kwargs["size"],
-            color=title_kwargs["color"],
-            weight=title_kwargs["weight"],
-        )
-
-    plt.rcParams.update({"text.usetex": False, "font.family": label_kwargs["family"]})
-    fig.text(
-        0.5,
-        0 - label_kwargs["pad"],
-        label_kwargs["label1"],
-        fontsize=label_kwargs["size"],
-        color=label_kwargs["color1"],
-        weight=label_kwargs["weight"],
-        ha="center",
-    )
-    fig.text(
-        0 - label_kwargs["pad"],
-        0.5,
-        label_kwargs["label2"],
-        fontsize=label_kwargs["size"],
-        color=label_kwargs["color2"],
-        weight=label_kwargs["weight2"],
-        va="center",
-        rotation="vertical",
-    )
-
-    if path is not None:
-        plt.savefig(path, bbox_inches="tight")
-
-
 # better corner plot
 def corner_plot(
     data1: np.ndarray,
@@ -677,7 +491,7 @@ def corner_plot(
             "text.usetex": True,
             "mathtext.fontset": "stix",
             "font.family": "serif",
-            "text.latex.preamble": [r"\usepackage{bm}"],
+            "text.latex.preamble": r"\usepackage{bm}",
         }
     )
 
@@ -686,8 +500,6 @@ def corner_plot(
         range=var_kwargs["ranges"],
         bins=hist_kwargs["bins"],
         show_titles=False,
-        title_fmt=".2f",
-        title_kwargs={"fontsize": 12},
         labels=var_kwargs["names"],
         label_kwargs={"fontsize": var_kwargs["size"]},
         labelpad=var_kwargs["pad"],
