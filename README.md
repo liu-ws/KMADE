@@ -1,6 +1,6 @@
 # KMADE
 
-KMADE provides several density estimation methods based on the Kolmogorov-Arnold Network (KAN), capable of fitting symbolic expressions for probability density functions using samples from corresponding distributions. These neural density estimation methods are designed to address future challenges in gravitational wave data analysis. Implemented models include Masked Autoencoder Density Estimator (MADE), Masked Autoregressive Flow (MAF), and Variational Autoencoder (VAE). A detailed description of the KAN-MADE model is available in our paper.
+This repository provides several density estimation methods based on the Kolmogorov-Arnold Network (KAN), capable of fitting symbolic expressions for probability density functions using samples from corresponding distributions. We hope to explore efficient GW catalog construction in future GW observations through these density estimation methods. Implemented models include Masked Autoencoder Density Estimator (MADE), Masked Autoregressive Flow (MAF), and Variational Autoencoder (VAE). A detailed description of the KAN-MADE model is available in our paper.
 
 ---
 

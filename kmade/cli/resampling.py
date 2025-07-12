@@ -4,6 +4,7 @@ import h5py
 from kmade.core.expr import sampler
 from kmade.core.saving import load_model
 from kmade.core.utils import corner_plot, pp_plot
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.manual_seed(2024)
@@ -33,7 +34,8 @@ if __name__ == "__main__":
 
     sample_nn = np.empty((140000, 6))
     sample_sym = np.empty((140000, 6))
-    for i in range(35):
+    # Wrap the loop with tqdm for a progress bar, showing only percentage
+    for i in tqdm(range(35), desc="Sampling", bar_format="{desc}: {percentage:3.0f}%"):
         sample_sym[i * 4000 : (i + 1) * 4000] = sampler(
             path="outputs/GW150914", n_samples=4000
         )
@@ -56,7 +58,7 @@ if __name__ == "__main__":
     maxm = np.max(sample_nn[:, 0])
 
     contour_kwargs = {
-        "colors1": ["#1976d2"],
+        "colors1": ["#0072c1"],
         "colors2": ["#c39d21", "#8d4e00"],
         "levels": [0.5, 0.9],
         "width": [2, 2],
@@ -66,8 +68,9 @@ if __name__ == "__main__":
     }
     contourf_kwargs = {"colors": ["white", "#ffedb2", "#edd3b2"]}
     hist_kwargs = {
-        "color": ["#1976d2", "#fcaf4d"],
+        "color": ["#0072c1", "#fcaf4d"],
         "width": [2, 2],
+        "linestyles": ["-", "-"],
         "alpha": 1,
         "bins": 50,
         "smooth1d": 0.8,
@@ -102,14 +105,15 @@ if __name__ == "__main__":
         "max_n_ticks": 3,
     }
     legend_kwargs_corner = {
-        "legend1": "Samples",
-        "legend2": "NDE",
-        "loc1": (0.9, 0.93),
-        "loc2": (0.9, 0.83),
-        "size": 70,
+        "legend1": "Raw samples",
+        "legend2": "Resampled (Neural Network Weights)",
+        "loc1": (0.36, 0.94),
+        "loc2": (0.36, 0.88),
+        "size": 40,
         "family": "Times New Roman",
-        "weight1": "normal",
-        "weight2": "normal",
+        "weights": ["normal", "normal"],
+        "ha": "left",
+        "va": "top",
     }
     # keywords of pp plot
     axes_kwargs_pp = {
@@ -140,8 +144,8 @@ if __name__ == "__main__":
     }
 
     label_kwargs = {
-        "label1": "Samples",
-        "label2": "NDE",
+        "label1": "Raw samples",
+        "label2": "Resampled",
         "size": 30,
         "family": "Times New Roman",
         "color1": "black",
@@ -155,7 +159,6 @@ if __name__ == "__main__":
         "linestyle": "--",
         "if_ref": False,
     }
-    legend_kwargs_corner["legend2"] = "NDE"
 
     # corner plots for nn resmpling results
     corner_plot(
@@ -178,14 +181,14 @@ if __name__ == "__main__":
         figure_size=(10, 10),
         color_bar=["#1f77b4", "#ff7f0e", "#2ca02c", "#9467bd", "#8c564b", "#7f7f7f"],
         column_names=[
-            r"$\mathcal{M} \left[\mathrm{M}_{\odot}\right]$",
+            r"$\mathcal{M}$",
             r"$q$",
             r"$a_{1}$",
             r"$a_{2}$",
             r"$\theta_1$",
             r"$\theta_2$",
         ],
-        path="outputs/150914_nnpp.pdf",
+        path="outputs/150914_pp.pdf",
         axes_kwargs=axes_kwargs_pp,
         legend_kwargs=legend_kwargs_pp,
         title_kwargs=title_kwargs,
@@ -194,6 +197,7 @@ if __name__ == "__main__":
     )
 
     # corner plots for symbolic expression resmpling results
+    legend_kwargs_corner["legend2"] = "Resampled (Symbolic Expressions)"
     corner_plot(
         posterior0914[:140000, :],
         sample_sym,
@@ -214,7 +218,7 @@ if __name__ == "__main__":
         figure_size=(10, 10),
         color_bar=["#1f77b4", "#ff7f0e", "#2ca02c", "#9467bd", "#8c564b", "#7f7f7f"],
         column_names=[
-            r"$\mathcal{M} \left[\mathrm{M}_{\odot}\right]$",
+            r"$\mathcal{M}$",
             r"$q$",
             r"$a_{1}$",
             r"$a_{2}$",

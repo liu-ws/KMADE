@@ -12,6 +12,7 @@ tqdm==4.67.0
 pandas==2.2.3
 tables==3.10.1
 h5py==3.12.1
+
 #population inference
 gwpopulation==1.1.2
 jax==0.4.35
@@ -19,5 +20,6 @@ jax-cuda12-pjrt==0.4.35
 jax-cuda12-plugin==0.4.35
 jaxlib==0.4.34
 wcosmo==0.3.1
+
 #code format
 pre-commit==4.2.0

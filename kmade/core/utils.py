@@ -424,12 +424,12 @@ def corner_plot(
         "width": [2, 2.5],
         "linestyles": ["-", "--"],
         "smooth": 1,
-        "alpha": 0.5,
     },
     contourf_kwargs: dict = {"colors": []},
     hist_kwargs: dict = {
         "color": [],
         "width": [2, 2.5],
+        "linestyles": ["-", "--"],
         "alpha": 1,
         "bins": 20,
         "smooth1d": 0.1,
@@ -453,6 +453,8 @@ def corner_plot(
         "family": "Times New Roman",
         "weight1": "bold",
         "weight2": "bold",
+        "ha": "center",
+        "va": "center",
     },
 ) -> None:
     """
@@ -507,7 +509,7 @@ def corner_plot(
         hist_kwargs={
             "color": hist_kwargs["color"][0],
             "lw": hist_kwargs["width"][0],
-            "ls": contour_kwargs["linestyles"][0],
+            "ls": hist_kwargs["linestyles"][0],
             "alpha": hist_kwargs["alpha"],
         },
         smooth1d=hist_kwargs["smooth1d"],
@@ -535,7 +537,7 @@ def corner_plot(
             hist_kwargs={
                 "color": hist_kwargs["color"][1],
                 "lw": hist_kwargs["width"][1],
-                "ls": contour_kwargs["linestyles"][1],
+                "ls": hist_kwargs["linestyles"][1],
                 "alpha": hist_kwargs["alpha"],
             },
             smooth1d=hist_kwargs["smooth1d"],
@@ -549,7 +551,6 @@ def corner_plot(
                 "linewidths": contour_kwargs["width"][1],
                 "linestyles": contour_kwargs["linestyles"][1],
                 "colors": contour_kwargs["colors2"],
-                "alpha": contour_kwargs["alpha"],
             },
             contourf_kwargs=contourf_kwargs,
         )
@@ -584,20 +585,20 @@ def corner_plot(
         fig.text(
             *legend_kwargs["loc1"],
             legend_kwargs["legend1"],
-            ha="center",
-            va="center",
+            ha=legend_kwargs["ha"],
+            va=legend_kwargs["va"],
             fontsize=legend_kwargs["size"],
             color=hist_kwargs["color"][0],
-            weight=legend_kwargs["weight1"],
+            weight=legend_kwargs["weights"][0],
         )
         fig.text(
             *legend_kwargs["loc2"],
             legend_kwargs["legend2"],
-            ha="center",
-            va="center",
+            ha=legend_kwargs["ha"],
+            va=legend_kwargs["va"],
             fontsize=legend_kwargs["size"],
             color=hist_kwargs["color"][1],
-            weight=legend_kwargs["weight2"],
+            weight=legend_kwargs["weights"][1],
         )
 
     if path is not None:
