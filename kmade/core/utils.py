@@ -225,12 +225,10 @@ def pp_plot(
         "if_title": False,
     },
     label_kwargs: dict = {
-        "label1": "sample1",
-        "label2": "sample2",
+        "labels": ["sample1", "sample2"],
         "size": 12,
         "family": "Times New Roman",
-        "color1": "black",
-        "color2": "black",
+        "colors": ["black", "black"],
     },
     ref_kwargs: dict = {
         "width": 2,
@@ -397,14 +395,14 @@ def pp_plot(
     # label
     plt.rcParams.update({"text.usetex": False, "font.family": label_kwargs["family"]})
     plt.xlabel(
-        label_kwargs["label1"],
+        label_kwargs["labels"][0],
         fontsize=label_kwargs["size"],
-        color=label_kwargs["color1"],
+        color=label_kwargs["colors"][0],
     )
     plt.ylabel(
-        label_kwargs["label2"],
+        label_kwargs["labels"][1],
         fontsize=label_kwargs["size"],
-        color=label_kwargs["color2"],
+        color=label_kwargs["colors"][1],
     )
 
     if path is not None:
@@ -424,13 +422,14 @@ def corner_plot(
         "width": [2, 2.5],
         "linestyles": ["-", "--"],
         "smooth": 1,
+        "alphas": [1, 0],
     },
     contourf_kwargs: dict = {"colors": []},
     hist_kwargs: dict = {
         "color": [],
         "width": [2, 2.5],
         "linestyles": ["-", "--"],
-        "alpha": 1,
+        "alphas": [1, 1],
         "bins": 20,
         "smooth1d": 0.1,
     },
@@ -445,14 +444,11 @@ def corner_plot(
         "max_n_ticks": 3,
     },
     legend_kwargs: dict = {
-        "legend1": "sample1",
-        "legend2": "sample2",
-        "loc1": (0, 0),
-        "loc2": (0, 0),
+        "legends": ["sample1", "sample2"],
+        "locs": [(0, 0), (0, 0)],
         "size": 12,
         "family": "Times New Roman",
-        "weight1": "bold",
-        "weight2": "bold",
+        "weights": ["bold", "bold"],
         "ha": "center",
         "va": "center",
     },
@@ -510,7 +506,7 @@ def corner_plot(
             "color": hist_kwargs["color"][0],
             "lw": hist_kwargs["width"][0],
             "ls": hist_kwargs["linestyles"][0],
-            "alpha": hist_kwargs["alpha"],
+            "alpha": hist_kwargs["alphas"][0],
         },
         smooth1d=hist_kwargs["smooth1d"],
         levels=contour_kwargs["levels"],
@@ -524,6 +520,7 @@ def corner_plot(
             "linewidths": contour_kwargs["width"][0],
             "linestyles": contour_kwargs["linestyles"][0],
             "colors": contour_kwargs["colors1"],
+            "alpha": contour_kwargs["alphas"][0],
         },
         contourf_kwargs=contourf_kwargs,
     )
@@ -538,7 +535,7 @@ def corner_plot(
                 "color": hist_kwargs["color"][1],
                 "lw": hist_kwargs["width"][1],
                 "ls": hist_kwargs["linestyles"][1],
-                "alpha": hist_kwargs["alpha"],
+                "alpha": hist_kwargs["alphas"][1],
             },
             smooth1d=hist_kwargs["smooth1d"],
             levels=contour_kwargs["levels"],
@@ -551,6 +548,7 @@ def corner_plot(
                 "linewidths": contour_kwargs["width"][1],
                 "linestyles": contour_kwargs["linestyles"][1],
                 "colors": contour_kwargs["colors2"],
+                "alpha": contour_kwargs["alphas"][1],
             },
             contourf_kwargs=contourf_kwargs,
         )
@@ -583,8 +581,8 @@ def corner_plot(
             {"text.usetex": False, "font.family": legend_kwargs["family"]}
         )
         fig.text(
-            *legend_kwargs["loc1"],
-            legend_kwargs["legend1"],
+            *legend_kwargs["locs"][0],
+            legend_kwargs["legends"][0],
             ha=legend_kwargs["ha"],
             va=legend_kwargs["va"],
             fontsize=legend_kwargs["size"],
@@ -592,8 +590,8 @@ def corner_plot(
             weight=legend_kwargs["weights"][0],
         )
         fig.text(
-            *legend_kwargs["loc2"],
-            legend_kwargs["legend2"],
+            *legend_kwargs["locs"][1],
+            legend_kwargs["legends"][1],
             ha=legend_kwargs["ha"],
             va=legend_kwargs["va"],
             fontsize=legend_kwargs["size"],

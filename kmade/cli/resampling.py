@@ -64,14 +64,14 @@ if __name__ == "__main__":
         "width": [2, 2],
         "linestyles": ["-", "--"],
         "smooth": 1,
-        "alpha": 1,
+        "alphas": [1, 0],
     }
     contourf_kwargs = {"colors": ["white", "#ffedb2", "#edd3b2"]}
     hist_kwargs = {
         "color": ["#0072c1", "#fcaf4d"],
         "width": [2, 2],
         "linestyles": ["-", "-"],
-        "alpha": 1,
+        "alphas": [1, 1],
         "bins": 50,
         "smooth1d": 0.8,
     }
@@ -105,10 +105,8 @@ if __name__ == "__main__":
         "max_n_ticks": 3,
     }
     legend_kwargs_corner = {
-        "legend1": "Raw samples",
-        "legend2": "Resampled (Neural Network Weights)",
-        "loc1": (0.36, 0.94),
-        "loc2": (0.36, 0.88),
+        "legends": ["Raw samples", "Resampled (Neural Network Weights)"],
+        "locs": [(0.36, 0.94), (0.36, 0.88)],
         "size": 40,
         "family": "Times New Roman",
         "weights": ["normal", "normal"],
@@ -128,7 +126,7 @@ if __name__ == "__main__":
     legend_kwargs_pp = {
         "loc": "best",
         "prop": {"family": "Times New Roman", "weight": "bold", "size": 28},
-        "ls": ["-", "--", "-", "--", "-", "--"],
+        "ls": ["-", "-", "-", "-", "-", "-"],
         "handlelength": 2,
         "color": "black",
     }
@@ -144,13 +142,10 @@ if __name__ == "__main__":
     }
 
     label_kwargs = {
-        "label1": "Raw samples",
-        "label2": "Resampled",
+        "labels": ["Raw samples", "Resampled"],
         "size": 30,
         "family": "Times New Roman",
-        "color1": "black",
-        "color2": "black",
-        "pad": 0.05,
+        "colors": ["black", "black"],
     }
     ref_kwargs = {
         "width": 2,

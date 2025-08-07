@@ -39,10 +39,10 @@ Results will be saved in the `outputs/` directory.
 If you use this code, please cite:
 
 ```bibtex
-@article{xxx,
-  title={Efficient Data Products for Gravitational-Wave Posteriors via Neural Density Estimation},
+@article{liu2025light,
+  title={Lightweight gravitational-wave catalog construction with Kolmogorov-Arnold network},
   author={Liu, Wenshuai and Dong, Yiming and Wang, Ziming and Shao, Lijing},
-  journal={xxx},
+  journal={arXiv preprint},
   year={2025}
 }
 ```
