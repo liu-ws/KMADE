@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import corner
+import scipy.stats as ss
 
 
 def discrete_sample(
@@ -148,48 +149,13 @@ def MMD(
     return loss
 
 
-def js_divergence(p: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
-    """
-    Calculate the Jensen-Shannon divergence between two distributions using PyTorch.
-
-    Args:
-        p : torch.Tensor
-            First distribution.
-        q : torch.Tensor
-            Second distribution.
-
-    Returns:
-        torch.Tensor
-            JS divergence.
-    """
-
-    # Calculate the average distribution
-    m = 0.5 * (p + q)
-
-    # Calculate JS divergence
-    jsd = 0.5 * (kl_divergence(p, m) + kl_divergence(q, m))
-    return jsd
-
-
-def kl_divergence(p: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
-    """
-    Calculate the Kullback-Leibler divergence using PyTorch.
-
-    Args:
-        p : torch.Tensor
-            First distribution.
-        q : torch.Tensor
-            Second distribution.
-
-    Returns:
-        torch.Tensor
-            KL divergence.
-    """
-
-    # Avoid log of zero
-    p = torch.clamp(p, min=1e-10)
-    q = torch.clamp(q, min=1e-10)
-    return torch.sum(p * torch.log(p / q), dim=-1)
+def wasserstein_distances(p_samples, q_samples):
+    n_dim = p_samples.shape[1]
+    wd = np.zeros(n_dim)
+    std = np.std(p_samples, axis=0)
+    for i in range(n_dim):
+        wd[i] = ss.wasserstein_distance(p_samples[:, i], q_samples[:, i]) / std[i]
+    return wd
 
 
 def pp_plot(
@@ -409,25 +375,22 @@ def pp_plot(
         plt.savefig(path, bbox_inches="tight")
 
 
-# better corner plot
 def corner_plot(
-    data1: np.ndarray,
-    data2: np.ndarray = None,
+    datas: list = [],
     path: str = None,
     pad_inches: float = 0.1,
     contour_kwargs: dict = {
-        "colors1": [],
-        "colors2": [],
+        "colors": [],
         "levels": [0.5, 0.9],
-        "width": [2, 2.5],
+        "widths": [2, 2.5],
         "linestyles": ["-", "--"],
         "smooth": 1,
         "alphas": [1, 0],
     },
-    contourf_kwargs: dict = {"colors": []},
+    contourf_kwargs: dict = {"colors": [], "fill_contours": []},
     hist_kwargs: dict = {
-        "color": [],
-        "width": [2, 2.5],
+        "colors": [],
+        "widths": [2, 2.5],
         "linestyles": ["-", "--"],
         "alphas": [1, 1],
         "bins": 20,
@@ -457,10 +420,8 @@ def corner_plot(
     Plot a corner plot for one or two datasets.
 
     Args:
-        data1 : np.ndarray
-            First dataset, shape (n, d).
-        data2 : np.ndarray, optional
-            Second dataset, shape (n, d).
+        datas : list of np.ndarray
+            List of datasets.
         path : str, optional
             Path to save the figure.
         pad_inches : float, optional
@@ -468,7 +429,7 @@ def corner_plot(
         contour_kwargs : dict, optional
             Keyword arguments for contour plot.
         contourf_kwargs : dict, optional
-            Keyword arguments for contourf plot.
+            Keyword arguments for filling contour.
         hist_kwargs : dict, optional
             Keyword arguments for histograms.
         var_kwargs : dict, optional
@@ -494,7 +455,7 @@ def corner_plot(
     )
 
     fig = corner.corner(
-        data=data1,
+        data=datas[0],
         range=var_kwargs["ranges"],
         bins=hist_kwargs["bins"],
         show_titles=False,
@@ -503,8 +464,8 @@ def corner_plot(
         labelpad=var_kwargs["pad"],
         # quantiles=[0.05, 0.5, 0.95],
         hist_kwargs={
-            "color": hist_kwargs["color"][0],
-            "lw": hist_kwargs["width"][0],
+            "color": hist_kwargs["colors"][0],
+            "lw": hist_kwargs["widths"][0],
             "ls": hist_kwargs["linestyles"][0],
             "alpha": hist_kwargs["alphas"][0],
         },
@@ -513,44 +474,45 @@ def corner_plot(
         smooth=contour_kwargs["smooth"],
         plot_density=False,
         plot_datapoints=False,
-        no_fill_contours=(data2 is not None),
-        fill_contours=(data2 is None),
+        fill_contours=contourf_kwargs["fill_contours"][0],
+        no_fill_contours=not contourf_kwargs["fill_contours"][0],
         max_n_ticks=axes_kwargs["max_n_ticks"],
         contour_kwargs={
-            "linewidths": contour_kwargs["width"][0],
+            "linewidths": contour_kwargs["widths"][0],
             "linestyles": contour_kwargs["linestyles"][0],
-            "colors": contour_kwargs["colors1"],
+            "colors": contour_kwargs["colors"][0],
             "alpha": contour_kwargs["alphas"][0],
         },
-        contourf_kwargs=contourf_kwargs,
+        contourf_kwargs={"colors": contourf_kwargs["colors"][0]},
     )
-    if data2 is not None:
+    for i in range(len(datas) - 1):
         corner.corner(
-            data=data2,
+            data=datas[i + 1],
             fig=fig,
             range=var_kwargs["ranges"],
             bins=hist_kwargs["bins"],
             # quantiles=[0.05, 0.5, 0.95],
             hist_kwargs={
-                "color": hist_kwargs["color"][1],
-                "lw": hist_kwargs["width"][1],
-                "ls": hist_kwargs["linestyles"][1],
-                "alpha": hist_kwargs["alphas"][1],
+                "color": hist_kwargs["colors"][i + 1],
+                "lw": hist_kwargs["widths"][i + 1],
+                "ls": hist_kwargs["linestyles"][i + 1],
+                "alpha": hist_kwargs["alphas"][i + 1],
             },
             smooth1d=hist_kwargs["smooth1d"],
             levels=contour_kwargs["levels"],
             smooth=contour_kwargs["smooth"],
             plot_density=False,
             plot_datapoints=False,
-            fill_contours=True,
+            fill_contours=contourf_kwargs["fill_contours"][i + 1],
+            no_fill_contours=not contourf_kwargs["fill_contours"][i + 1],
             max_n_ticks=axes_kwargs["max_n_ticks"],
             contour_kwargs={
-                "linewidths": contour_kwargs["width"][1],
-                "linestyles": contour_kwargs["linestyles"][1],
-                "colors": contour_kwargs["colors2"],
-                "alpha": contour_kwargs["alphas"][1],
+                "linewidths": contour_kwargs["widths"][i + 1],
+                "linestyles": contour_kwargs["linestyles"][i + 1],
+                "colors": contour_kwargs["colors"][i + 1],
+                "alpha": contour_kwargs["alphas"][i + 1],
             },
-            contourf_kwargs=contourf_kwargs,
+            contourf_kwargs={"colors": contourf_kwargs["colors"][i + 1]},
         )
 
     # remove the space between subplots
@@ -576,27 +538,16 @@ def corner_plot(
             tick.label1.set_rotation(axes_kwargs["rotationy"])
 
     # legend
-    if data2 is not None:
-        plt.rcParams.update(
-            {"text.usetex": False, "font.family": legend_kwargs["family"]}
-        )
+    plt.rcParams.update({"text.usetex": False, "font.family": legend_kwargs["family"]})
+    for i in range(len(datas)):
         fig.text(
-            *legend_kwargs["locs"][0],
-            legend_kwargs["legends"][0],
+            *legend_kwargs["locs"][i],
+            legend_kwargs["legends"][i],
             ha=legend_kwargs["ha"],
             va=legend_kwargs["va"],
             fontsize=legend_kwargs["size"],
-            color=hist_kwargs["color"][0],
-            weight=legend_kwargs["weights"][0],
-        )
-        fig.text(
-            *legend_kwargs["locs"][1],
-            legend_kwargs["legends"][1],
-            ha=legend_kwargs["ha"],
-            va=legend_kwargs["va"],
-            fontsize=legend_kwargs["size"],
-            color=hist_kwargs["color"][1],
-            weight=legend_kwargs["weights"][1],
+            color=hist_kwargs["colors"][i],
+            weight=legend_kwargs["weights"][i],
         )
 
     if path is not None:

@@ -12,8 +12,7 @@ from .utils import (
     discrete_sample,
     gaussian_kernel_mmd,
     MMD,
-    js_divergence,
-    kl_divergence,
+    wasserstein_distances,
     pp_plot,
     corner_plot,
 )
@@ -41,8 +40,7 @@ __all__ = [
     "discrete_sample",
     "gaussian_kernel_mmd",
     "MMD",
-    "js_divergence",
-    "kl_divergence",
+    "wasserstein_distances",
     "pp_plot",
     "corner_plot",
     # Functions from saving.py
