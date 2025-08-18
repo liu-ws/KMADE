@@ -186,7 +186,7 @@ def load_model(path: str, ifloaddata: bool = False, dtype: torch.dtype = torch.f
 # save and read expressions of the distribution got by model
 def save_expr(model: object, path: str, tolerance: float = None) -> None:
     """
-    Save symbolic expressions of the model.
+    Save analytic expressions of the model.
 
     Args:
         model : object
@@ -225,7 +225,7 @@ def save_expr(model: object, path: str, tolerance: float = None) -> None:
 
 def read_expr(path: str, simplify: bool = False):
     """
-    Read symbolic expressions from file.
+    Read analytic expressions from file.
 
     Args:
         path : str
@@ -235,7 +235,7 @@ def read_expr(path: str, simplify: bool = False):
 
     Returns:
         sympy.Expr
-            The symbolic probability density function.
+            The analytic probability density function.
     """
 
     # reture the expreession of the probability density function of the distribution got by model

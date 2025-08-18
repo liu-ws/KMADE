@@ -6,6 +6,7 @@ from tqdm import tqdm
 import os
 
 
+# modify the origional training method of KAN
 def modified_fit(
     self,
     dataset: dict,

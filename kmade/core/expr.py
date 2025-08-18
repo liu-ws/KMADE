@@ -9,7 +9,7 @@ import os
 
 def forward(funcs: list, input: np.ndarray) -> np.ndarray:
     """
-    Evaluate a list of symbolic functions on input data.
+    Evaluate a list of analytic functions on input data.
 
     Args:
         funcs : list
@@ -31,11 +31,11 @@ def sampler(
     path: str, n_samples: int, para: list = [], u: np.ndarray = None
 ) -> np.ndarray:
     """
-    Sample from a symbolic KMADE model.
+    Sample from saved analytic expressions.
 
     Args:
         path : str
-            Path prefix to the saved symbolic expressions.
+            Path prefix to the saved analyitc expressions.
         n_samples : int
             Number of samples to generate.
         para : list, optional
@@ -131,16 +131,15 @@ def sampler(
         return input[:, 0:data_l]
 
 
-# sample with symbolic expressions of kmafs
 def sampler_kmaf(
     path: str, n_samples: int = 1, n_mades: int = 1, para: list = []
 ) -> np.ndarray:
     """
-    Sample from a symbolic KMAF model (stack of KMADEs).
+    Sample from a analytic KMAF model (stack of KMADEs).
 
     Args:
         path : str
-            Path prefix to the saved symbolic expressions.
+            Path prefix to the saved analytic expressions.
         n_samples : int, optional
             Number of samples to generate. Default: 1.
         n_mades : int, optional
@@ -161,14 +160,13 @@ def sampler_kmaf(
     return u
 
 
-# compute the u of the given data x using symbolic expressions of kmades
 def compute_u(path: str, x: np.ndarray):
     """
-    Compute the u variable for given data using symbolic expressions.
+    Compute the u variable for given data using analyitic expressions.
 
     Args:
         path : str
-            Path to the saved symbolic expressions.
+            Path to the saved analytic expressions.
         x : np.ndarray
             Input data, shape (n, d).
 
@@ -212,14 +210,13 @@ def compute_u(path: str, x: np.ndarray):
         return u, m, logp, loga
 
 
-# compute the likelihood of the given data x using symbolic expressions of mgkmade and cmgkmade
 def likelihood(path: str, x: np.ndarray, log: bool = True) -> np.ndarray:
     """
-    Compute the likelihood of given data using symbolic expressions.
+    Compute the likelihood of given data using analytic expressions.
 
     Args:
         path : str
-            Path to the saved symbolic expressions.
+            Path to the saved analytic expressions.
         x : np.ndarray
             Input data, shape (n, d).
         log : bool, optional
@@ -239,18 +236,17 @@ def likelihood(path: str, x: np.ndarray, log: bool = True) -> np.ndarray:
         return torch.exp(L)
 
 
-# compute the probability density function of the given data x using symbolic expressions of kmafs
 def compute_kmaf(
     x: np.ndarray, path: str, n_mades: int = 1, log: bool = True
 ) -> np.ndarray:
     """
-    Compute the probability density function of the given data using symbolic expressions of KMAF.
+    Compute the probability density function of the given data using analytic expressions of KMAF.
 
     Args:
         x : np.ndarray
             Input data, shape (n, d).
         path : str
-            Path prefix to the saved symbolic expressions.
+            Path prefix to the saved analytic expressions.
         n_mades : int, optional
             Number of MADEs in the stack. Default: 1.
         log : bool, optional

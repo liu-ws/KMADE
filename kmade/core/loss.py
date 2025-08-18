@@ -20,7 +20,7 @@ def loss_function(pred, data):
     else:
         n_comps = j // data_l // 3
         """
-        The arrangement of the output is set as follows: the first 1/3 is m, the middle 1/3 is logp, and the last 1/3 is a
+        The arrangement of the output is set as follows: the first 1/3 is m, the middle 1/3 is -2logp, and the last 1/3 is loga
         Each 1/3 requires each n_comps output to be divided into a group corresponding to the same p_i
         The output needs to be reformatted into three three-dimensional matrices
         The first dimension represents different samples
