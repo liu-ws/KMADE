@@ -33,6 +33,10 @@ Results will be saved in the `outputs/` directory.
 
 ---
 
+## Public Data
+
+The data used to generate the figures in our paper can be found in the `public_data/` directory.
+
 
 ## Reference
 
