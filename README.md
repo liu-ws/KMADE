@@ -1,6 +1,6 @@
 # KMADE
 
-This repository provides several density estimation methods based on the Kolmogorov-Arnold Network (KAN), capable of fitting symbolic expressions for probability density functions using samples from corresponding distributions. We hope to explore efficient GW catalog construction in future GW observations through these density estimation methods. Implemented models include Masked Autoencoder Density Estimator (MADE), Masked Autoregressive Flow (MAF), and Variational Autoencoder (VAE). A detailed description of the KAN-MADE model is available in our paper.
+This repository provides several density estimation methods based on the Kolmogorov-Arnold Network (KAN), capable of fitting symbolic expressions for probability density functions using samples from corresponding distributions. We hope to explore efficient GW catalog construction in future GW observations through these density estimation methods. Implemented models include Masked Autoencoder Density Estimator (MADE), Masked Autoregressive Flow (MAF), and Variational Autoencoder (VAE). A detailed description of the KAN-MADE model is available in [our paper](https://arxiv.org/abs/2508.18698).
 
 ---
 
@@ -35,7 +35,7 @@ Results will be saved in the `outputs/` directory.
 
 ## Public Data
 
-The data used to generate the figures in our paper can be found in the `public_data/` directory.
+The data used to generate the figures in [our paper](https://arxiv.org/abs/2508.18698) can be found in the `public_data/` directory.
 
 
 ## Reference
@@ -43,11 +43,14 @@ The data used to generate the figures in our paper can be found in the `public_d
 If you use this code, please cite:
 
 ```bibtex
-@article{liu2025light,
-  title={Lightweight gravitational-wave catalog construction with Kolmogorov-Arnold network},
-  author={Liu, Wenshuai and Dong, Yiming and Wang, Ziming and Shao, Lijing},
-  journal={arXiv preprint},
-  year={2025}
+@misc{liu2025light,
+      title={Lightweight posterior construction for gravitational-wave catalogs with the Kolmogorov-Arnold network}, 
+      author={Wenshuai Liu and Yiming Dong and Ziming Wang and Lijing Shao},
+      year={2025},
+      eprint={2508.18698},
+      archivePrefix={arXiv},
+      primaryClass={gr-qc},
+      url={https://arxiv.org/abs/2508.18698}, 
 }
 ```
 
