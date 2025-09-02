@@ -221,7 +221,7 @@ class CSGKMAF(nn.Module):
             data_l : int
                 Dimension of data.
             para_l : int
-                Dimension of parameter.
+                Dimension of conditional parameter.
             hidden_layers : list, optional
                 Number of hidden units for each hidden layer. Default: [].
             para_hidden_layers : list, optional
@@ -288,7 +288,7 @@ class CSGKMAF(nn.Module):
         Forward pass through the conditional MAF.
 
         Args:
-            x (torch.Tensor): Input data.
+            x (torch.Tensor): Input data and conditional parameter.
             log (bool, optional): Whether to return log-likelihood. Default: True.
             update_grid (bool, optional): Whether to update grid. Default: False.
 
@@ -330,7 +330,7 @@ class CSGKMAF(nn.Module):
 
         Args:
             x : torch.Tensor
-                Input data.
+                Input data and conditional parameter.
             update_grid (bool, optional): Whether to update grid. Default: False.
 
         Returns:
@@ -565,6 +565,7 @@ class CMGKMAF(nn.Module):
     def __init__(
         self,
         data_l: int,
+        para_l: int,
         hidden_layers: list,
         para_hidden_layers: list,
         n_comps: int,
@@ -579,6 +580,7 @@ class CMGKMAF(nn.Module):
 
         Args:
             data_l (int): Dimension of data.
+            para_l (int): Dimension of conditional parameter.
             hidden_layers (list): Number of hidden units for each hidden layer.
             para_hidden_layers (list): Number of hidden units for each parameter hidden layer.
             n_comps (int): Number of Gaussians per conditional.
@@ -591,6 +593,7 @@ class CMGKMAF(nn.Module):
         super().__init__()
         # save input arguments
         self.data_l = data_l
+        self.para_l = para_l
         self.hidden_layers = hidden_layers
         self.para_hidden_layers = para_hidden_layers
         self.n_comps = n_comps
@@ -603,6 +606,7 @@ class CMGKMAF(nn.Module):
         self.maf = CSGKMAF(
             n_mades=n_mades - 1,
             data_l=data_l,
+            para_l=para_l,
             hidden_layers=hidden_layers,
             para_hidden_layers=para_hidden_layers,
             batch_norm=batch_norm,
@@ -628,6 +632,7 @@ class CMGKMAF(nn.Module):
 
         self.made = CMGKMADE(
             data_l=data_l,
+            para_l=para_l,
             hidden_layers=hidden_layers,
             para_hidden_layers=para_hidden_layers,
             n_comps=n_comps,
@@ -642,7 +647,7 @@ class CMGKMAF(nn.Module):
         Forward pass through the conditional MAF.
 
         Args:
-            x (torch.Tensor): Input data.
+            x (torch.Tensor): Input data and conditional parameter.
             log (bool, optional): Whether to return log-likelihood. Default: True.
             update_grid (bool, optional): Whether to update grid. Default: False.
 
@@ -665,7 +670,7 @@ class CMGKMAF(nn.Module):
         Compute the negative log-likelihood loss.
 
         Args:
-            x (torch.Tensor): Input data.
+            x (torch.Tensor): Input data and conditional parameter.
             update_grid (bool, optional): Whether to update grid. Default: False.
 
         Returns:

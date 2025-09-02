@@ -105,9 +105,9 @@ def create_masks(degrees, n_comps, device):
     return Ms, last_degrees
 
 
-def create_masks_condition(model, device):
+def create_masks_condition(model):
     Ms, last_degrees = create_masks(
-        degrees=model.degrees, n_comps=model.n_comps, device=device
+        degrees=model.degrees, n_comps=model.n_comps, device=model.device
     )
     tMs = []
     hidden_layers = model.hidden_layers
@@ -138,10 +138,10 @@ def create_masks_condition(model, device):
         M = torch.zeros(ll + lr, hl + hr)
         M[0:ll, 0:hl] = Ms[h]
         M[ll:, hl:] = torch.ones(lr, hr)
-        tMs.append(M.to(device, torch.float))
+        tMs.append(M.to(model.device, torch.float))
     M = torch.ones(hl + hr, model.width[-1][0])
     M[0:hl, :] = Ms[-1]
-    tMs.append(M.to(device, torch.float))
+    tMs.append(M.to(model.device, torch.float))
 
     return tMs, last_degrees
 
@@ -591,7 +591,7 @@ class CSGKMADE(MultKAN):
             mode=self.mode,
             seed=self.seed,
         )
-        self.Ms, last_degrees = create_masks_condition(self, device=self.device)
+        self.Ms, last_degrees = create_masks_condition(self)
         self.degrees.append(last_degrees)
 
         # perturb the bias of the last layer
@@ -778,9 +778,7 @@ class CMGKMADE(MultKAN):
             mode=self.mode,
             seed=self.seed,
         )
-        self.Ms, last_degrees = create_masks_condition(
-            degrees=self.degrees, n_comps=self.n_comps, device=self.device
-        )
+        self.Ms, last_degrees = create_masks_condition(self)
         self.degrees.append(last_degrees)
 
         # perturb the bias of the last layer
