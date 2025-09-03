@@ -303,17 +303,19 @@ class CSGKMAF(nn.Module):
                 self.mades[i].update_grid(x)
 
             u, m, logp = self.mades[i].compute_u(x)
-            x[:, 0 : self.data_l] = u
 
             self.logdet_dudx += 0.5 * torch.sum(logp, axis=1)
 
             # batch normalization
             if self.batch_norm:
                 bn = self.bns[i]
-                x = bn(x)
+                u_bn = bn(u)
+                x = torch.cat([u_bn, x[:, self.data_l :]])
                 self.logdet_dudx += torch.sum(torch.log(bn.weight)) - 0.5 * torch.sum(
                     torch.log(bn.running_var + bn.eps)
                 )
+            else:
+                x = torch.cat([u, x[:, self.data_l :]])
 
         # log likelihoods
         L = (
